@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Wavelength — MP3 Player</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎵</text></svg>" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div class="app" id="app">
+
+  <input type="file" id="fileInput" accept="audio/*,.mp3,.wav,.ogg,.m4a,.flac" multiple hidden />
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-name">Wavelength</span>
+    </div>
+    <div class="topbar-actions">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/></svg>
+        <input type="text" id="searchInput" placeholder="Search title, artist, or album" aria-label="Search playlist" />
+      </div>
+      <button class="icon-btn" id="themeToggle" title="Toggle theme" aria-label="Toggle light/dark theme">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
+      </button>
+      <button class="btn btn-primary" id="addFilesBtn">
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"/></svg>
+        Add music
+      </button>
+    </div>
+  </header>
+
+  <main class="layout">
+
+    <section class="now-playing" id="dropZone" aria-label="Now playing">
+      <div class="art-wrap">
+        <canvas id="visualizer" class="visualizer" width="360" height="360" aria-hidden="true"></canvas>
+        <div class="art" id="artDisc">
+          <img id="artImg" alt="" hidden />
+          <svg id="artPlaceholder" viewBox="0 0 24 24" width="72" height="72" aria-hidden="true"><path fill="currentColor" d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3z"/></svg>
+        </div>
+      </div>
+
+      <div class="track-meta">
+        <h1 id="trackTitle" class="track-title">No track loaded</h1>
+        <p id="trackArtist" class="track-artist">Add music to get started</p>
+      </div>
+
+      <div class="progress-row">
+        <span id="curTime" class="time">0:00</span>
+        <input type="range" id="seekBar" class="seek" min="0" max="1000" value="0" step="1" aria-label="Seek" />
+        <span id="durTime" class="time">0:00</span>
+      </div>
+
+      <div class="transport">
+        <button class="icon-btn" id="shuffleBtn" title="Shuffle" aria-label="Toggle shuffle" aria-pressed="false">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M10.59 9.17 5.41 4 4 5.41l5.17 5.17zm4.24-4.76-1.4 1.41L16.17 8.6 17.58 7.19zM4 18.59 9.17 13.4l1.41 1.41L5.41 20zm14.76-4.83L22 17l-3.24 3.24-1.41-1.41L19.17 17l-1.82-1.83z"/></svg>
+        </button>
+        <button class="icon-btn" id="prevBtn" title="Previous" aria-label="Previous track">
+          <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+        </button>
+        <button class="icon-btn play-btn" id="playBtn" title="Play" aria-label="Play">
+          <svg id="playIcon" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>
+          <svg id="pauseIcon" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" hidden><path fill="currentColor" d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+        </button>
+        <button class="icon-btn" id="nextBtn" title="Next" aria-label="Next track">
+          <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M16 6h2v12h-2zM6 18l8.5-6L6 6z"/></svg>
+        </button>
+        <button class="icon-btn" id="repeatBtn" title="Repeat off" aria-label="Cycle repeat mode" data-mode="off">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M7 7h10v3l4-4-4-4v3H5v6h2zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2z"/></svg>
+          <span class="repeat-one-dot" id="repeatOneDot" hidden>1</span>
+        </button>
+      </div>
+
+      <div class="secondary-controls">
+        <div class="volume-control">
+          <button class="icon-btn small" id="muteBtn" title="Mute" aria-label="Mute">
+            <svg id="volIconHigh" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M3 9v6h4l5 5V4L7 9zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+            <svg id="volIconMute" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" hidden><path fill="currentColor" d="M16.5 12A4.5 4.5 0 0 0 14 7.97v1.79l2.48 2.48c.01-.08.02-.16.02-.24zM19 12c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06a8.99 8.99 0 0 0 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4 9.91 6.09 12 8.18V4z"/></svg>
+          </button>
+          <input type="range" id="volumeBar" class="volume" min="0" max="100" value="80" aria-label="Volume" />
+        </div>
+        <div class="speed-control">
+          <label for="speedSelect" class="speed-label">Speed</label>
+          <select id="speedSelect" aria-label="Playback speed">
+            <option value="0.5">0.5×</option>
+            <option value="0.75">0.75×</option>
+            <option value="1" selected>1×</option>
+            <option value="1.25">1.25×</option>
+            <option value="1.5">1.5×</option>
+            <option value="2">2×</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="drop-hint" id="dropHint">
+        <svg viewBox="0 0 24 24" width="40" height="40" aria-hidden="true"><path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"/></svg>
+        <p>Drop audio files anywhere to add them</p>
+      </div>
+    </section>
+
+    <aside class="playlist-panel">
+      <div class="playlist-header">
+        <h2>Playlist <span id="trackCount" class="track-count">0 tracks</span></h2>
+        <div class="playlist-actions">
+          <button class="icon-btn small" id="sortBtn" title="Sort A–Z" aria-label="Sort playlist alphabetically">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M3 18h6v-2H3zM3 6v2h18V6zm0 7h12v-2H3z"/></svg>
+          </button>
+          <button class="icon-btn small danger" id="clearBtn" title="Clear playlist" aria-label="Clear playlist">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6zM19 4h-3.5l-1-1h-5l-1 1H5v2h14z"/></svg>
+          </button>
+        </div>
+      </div>
+      <ul id="playlist" class="playlist" aria-label="Playlist tracks"></ul>
+      <div class="playlist-empty" id="playlistEmpty">
+        <p>Your playlist is empty.</p>
+        <button class="btn btn-outline" id="emptyAddBtn">Add MP3 files</button>
+      </div>
+    </aside>
+
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</div>
+
+<script src="vendor/jsmediatags.min.js" defer></script>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
