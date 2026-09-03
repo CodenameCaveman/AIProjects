@@ -2,7 +2,7 @@ name: Deploy Pocket (phone UI) to GitHub Pages
 
 on:
   push:
-    branches: [claude/phone-ui]
+    branches: [claude/mp3-player-ui-kaz27w, claude/phone-ui]
     paths:
       - "phone-ui/**"
       - ".github/workflows/deploy-phone-ui.yml"
